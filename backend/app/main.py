@@ -12,15 +12,10 @@ models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
-origins = [
-    "https://dream-share-full-stack-project.vercel.app/",
-    "http://localhost:5173",
-    "*"
-]
-
+# CORS middleware (updated)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Or only your frontend URLs, but not both "*" and URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,6 +24,8 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"message": "Welcome to DreamShare API!"}
+
+# ... (rest of your route definitions remain unchanged) ...
 
 @app.post("/register", response_model=schemas.UserShareOut)
 def register(user: schemas.UserShareCreate, db: Session = Depends(auth.get_db)):
