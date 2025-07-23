@@ -5,12 +5,15 @@ from . import models, schemas, crud, auth, database
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import List
 
+# Import all models to ensure all tables are created
+from .models import User, Post, Like
+
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
 origins = [
-    "http://localhost",
+    "https://dream-share-full-stack-project.vercel.app/",
     "http://localhost:5173",
     "*"
 ]
