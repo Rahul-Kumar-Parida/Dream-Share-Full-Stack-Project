@@ -3,14 +3,14 @@ from . import models, schemas, auth
 from fastapi import HTTPException, status
 
 def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+    return db.query(models.UserShare).filter(models.UserShare.email == email).first()
 
 def get_user_by_username(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+    return db.query(models.UserShare).filter(models.UserShare.username == username).first()
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: schemas.UserShareCreate):
     hashed_password = auth.get_password_hash(user.password)
-    db_user = models.User(username=user.username, email=user.email, password_hash=hashed_password)
+    db_user = models.UserShare(username=user.username, email=user.email, password_hash=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -21,6 +21,7 @@ def authenticate_user(db: Session, email: str, password: str):
     if not user or not auth.verify_password(password, user.password_hash):
         return None
     return user
+# ...rest remains unchanged
 
 def create_post(db: Session, user_id: int, post: schemas.PostCreate):
     db_post = models.Post(user_id=user_id, content=post.content)

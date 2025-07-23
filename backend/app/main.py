@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from typing import List
 
 # Import all models to ensure all tables are created
-from .models import User, Post, Like
+from .models import UserShare, Post, Like
 
 models.Base.metadata.create_all(bind=database.engine)
 
@@ -30,8 +30,8 @@ app.add_middleware(
 def root():
     return {"message": "Welcome to DreamShare API!"}
 
-@app.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(auth.get_db)):
+@app.post("/register", response_model=schemas.UserShareOut)
+def register(user: schemas.UserShareCreate, db: Session = Depends(auth.get_db)):
     if crud.get_user_by_email(db, user.email) or crud.get_user_by_username(db, user.username):
         raise HTTPException(status_code=400, detail="Email or username already registered")
     return crud.create_user(db, user)
@@ -45,15 +45,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = auth.create_access_token(data={"sub": str(user.id)})  # Ensure sub is a string
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/me", response_model=schemas.UserOut)
-def get_me(current_user: models.User = Depends(auth.get_current_user)):
+@app.get("/me", response_model=schemas.UserShareOut)
+def get_me(current_user: models.UserShare = Depends(auth.get_current_user)):
     return current_user
 
 @app.post("/posts", response_model=schemas.PostOut)
 def create_post(
     post: schemas.PostCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    current_user: models.UserShare = Depends(auth.get_current_user)
 ):
     db_post = crud.create_post(db, current_user.id, post)
     like_count = crud.get_like_count(db, db_post.id)
@@ -66,7 +66,7 @@ def create_post(
 @app.get("/posts/me", response_model=List[schemas.PostOut])
 def get_my_posts(
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    current_user: models.UserShare = Depends(auth.get_current_user)
 ):
     posts = crud.get_user_posts(db, current_user.id)
     return [
@@ -107,7 +107,7 @@ def update_post(
     post_id: int,
     post: schemas.PostCreate,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    current_user: models.UserShare = Depends(auth.get_current_user)
 ):
     db_post = crud.update_post(db, post_id, current_user.id, post)
     like_count = crud.get_like_count(db, db_post.id)
@@ -121,7 +121,7 @@ def update_post(
 def delete_post(
     post_id: int,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    current_user: models.UserShare = Depends(auth.get_current_user)
 ):
     crud.delete_post(db, post_id, current_user.id)
     return {"detail": "Post deleted"}
@@ -130,6 +130,6 @@ def delete_post(
 def like_post(
     post_id: int,
     db: Session = Depends(auth.get_db),
-    current_user: models.User = Depends(auth.get_current_user)
+    current_user: models.UserShare = Depends(auth.get_current_user)
 ):
     return crud.like_post(db, current_user.id, post_id)

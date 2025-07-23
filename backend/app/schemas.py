@@ -2,14 +2,14 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime
 
-class UserBase(BaseModel):
+class UserShareBase(BaseModel):
     username: str
     email: EmailStr
 
-class UserCreate(UserBase):
+class UserShareCreate(UserShareBase):
     password: str
 
-class UserOut(UserBase):
+class UserShareOut(UserShareBase):
     id: int
     created_at: datetime
     model_config = {
